@@ -1,0 +1,4 @@
+chars_to_remove = ['.', '!', '?']
+subj = 'A.B!C?'
+subj.translate(str.maketrans('','',''.join(chars_to_remove)))
+'ABC'
