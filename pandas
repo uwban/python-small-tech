@@ -1,0 +1,57 @@
+#pandas clean null value of text column
+df = df[~df.text.isna()]
+
+#subset dataframe base on condition on a colunmn(labeled as lang) value
+fr=df[df['lang']=='en']
+
+# iterating on row (clean text column for each entry)
+special = ['Â','©','Ã','£','®','¢','¥','º','½',']','¨','¯','?','ª','§','»','[']
+for i, row in fr.iterrows():
+    string = row['text']
+    clean_str = string.translate(str.maketrans('','',''.join(special)))
+    new_str = ' '.join(clean_str.split())
+    fr.at[i,'text'] = new_str
+    
+# simple selections
+fr= fr[fr['text'].map(len)>2]
+
+#there is a another data type of pandas is useful which is pandas.series
+#it works like (n-dimonsional) arrays but with labels
+#when we apply apply function on dataframe, it convert each row into pandas.seires so we DO have the name of columns
+#for example:
+import re
+class cleansing():
+    def regex_pm(self, df):
+        page0='Page [0-9]+ (of|de|sur) [0-9]+$'
+        page1='(.*?) Page [0-9]+ (of|de|sur) [0-9]+ ([0-9]* [a-zA-Z]+.-[0-9]* )*'
+        page2='(.*?) Page [0-9]+ '
+        page3='^[0-9 ]{1,3}'
+        page4='Page [0-9]+$'
+        page5='Page [0-9]+ (of|de|sur) [0-9]+ '
+        page6='Page [0-9]+ '
+        page7='COPYRIGHT (.*?) Page [0-9]+ (of|de|sur) [0-9]+$'
+        page8='COPYRIGHT (.*?) Page [0-9]+$'
+        unsdot='[-|\\.|_][-|\\.|_]+[ ]*'
+        unbullet='[ ]*\\?[ ]*'
+        bullet='/\d\.\s+|•\s+|[A-Z]\.\s+|[IVX]+\.\s+/g'
+        dirct='[A-Z]:.*\\\\[Ditropan XL.apm.wpd ]*'
+        datengfre='Date of Revision: [a-zA-Z]+\s{1}[0-9]+, [0-9]{4} and Control No.[0-9]+|Date de révision : [0-9]+ [A-Za-zéû]+ [0-9]{4} et no de contrôle [0-9]+'
+        regex=[page7,page0,page8,page4,page1,page2,page3,page5,page6,unsdot,unbullet,bullet,datengfre,dirct]
+        index = list(df.index)
+        n=int(df['xmpTPg:NPages'])
+        dicts=df.to_dict()
+        dicts['page_1']=re.sub('Page [0-9]+ (.*?) [0-9]+ |Page [0-9]+ ', '', dicts['page_1'])
+        for i in range(2, n):
+                dicts['page_'+str(i)] = self.__orderprecedence(dicts['page_'+str(i)], regex)
+        ans=pd.Series(dicts, index=index)
+        return ans
+
+
+    def __orderprecedence(self, str1, lst):
+        for x in lst:
+            str1=re.sub(x, '', str1)
+        return str1
+
+    def apply_df(self, df):
+        ans=df.apply(self.regex_pm, axis=1)
+        return ans
