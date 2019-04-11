@@ -1,0 +1,16 @@
+#pipeline = Pipeline([('vect', count),('tfidf', TfidfTransformer()),('clf', SGDClassifier()),])
+X_train, X_test, y_train, y_true = train_test_split(X, y, test_size=0.5, random_state=0)
+model = pipeline.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+#def run_experiment(X, y, pipeline, num_expts):
+#    scores = list()
+#    for i in range(num_expts):
+#        X_train, X_test, y_train, y_true = train_test_split(X, y, test_size=0.5, random_state=0)
+#        model = pipeline.fit(X_train, y_train)  # Train the classifier.
+#        y_test = model.predict(X_test)          # Apply the model to the test data.
+#        score = accuracy_score(y_test, y_true)  # Compare the results to the gold standard.
+#        scores.append(score)
+
+#    print(sum(scores) / num_expts)
+# Run x times (num_expts) and get the average accuracy.
+#run_experiment(X, y, pipeline, 5)
